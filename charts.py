@@ -1,0 +1,157 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+import plotly.express as px
+import pandas as pd
+
+
+def style_chart(fig):
+    fig.update_layout(
+        template="simple_white",
+        title_x=0.05,
+        title_font_size=18,
+        font=dict(
+            family="Arial",
+            size=13
+        ),
+        height=420,
+        margin=dict(
+            l=20,
+            r=20,
+            t=60,
+            b=20
+        ),
+        showlegend=True
+    )
+    return fig
+
+
+def create_charts(providers, receivers, food, claims):
+    charts = {}
+
+    provider_city = (
+        providers["City"]
+        .value_counts()
+        .head(10)
+    )
+    fig1 = px.bar(
+        x=provider_city.values,
+        y=provider_city.index,
+        orientation="h",
+        title="Top Cities by Food Providers",
+        labels={
+            "x":"Providers",
+            "y":"City"
+        }
+    )
+    charts["fig1"] = style_chart(fig1)
+
+
+    receiver_city = (
+        receivers["City"]
+        .value_counts()
+        .head(10)
+    )
+    fig2 = px.bar(
+        x=receiver_city.values,
+        y=receiver_city.index,
+        orientation="h",
+        title="Top Cities by Receivers",
+        labels={
+            "x":"Receivers",
+            "y":"City"
+        }
+    )
+    charts["fig2"] = style_chart(fig2)
+
+
+    fig3 = px.pie(
+        food,
+        names="Food_Type",
+        hole=.45,
+        title="Food Type Distribution"
+    )
+    charts["fig3"] = style_chart(fig3)
+
+
+    fig4 = px.pie(
+        food,
+        names="Meal_Type",
+        hole=.45,
+        title="Meal Type Distribution"
+    )
+    charts["fig4"] = style_chart(fig4)
+
+
+    fig5 = px.pie(
+        claims,
+        names="Status",
+        hole=.55,
+        title="Claim Status Overview"
+    )
+    charts["fig5"] = style_chart(fig5)
+
+
+    provider_type = (
+        food["Provider_Type"]
+        .value_counts()
+    )
+    fig6 = px.bar(
+        x=provider_type.values,
+        y=provider_type.index,
+        orientation="h",
+        title="Provider Category Distribution",
+        labels={
+            "x":"Count",
+            "y":"Provider Type"
+        }
+    )
+    charts["fig6"] = style_chart(fig6)
+
+
+    food_city = (
+        food["Location"]
+        .value_counts()
+        .head(10)
+    )
+    fig7 = px.bar(
+        x=food_city.values,
+        y=food_city.index,
+        orientation="h",
+        title="Top Cities by Food Availability",
+        labels={
+            "x":"Food Listings",
+            "y":"City"
+        }
+    )
+    charts["fig7"] = style_chart(fig7)
+
+
+    meal_claims = pd.merge(
+        claims,
+        food,
+        on="Food_ID"
+    )
+    meal_claims = (
+        meal_claims["Meal_Type"]
+        .value_counts()
+        .reset_index()
+    )
+    meal_claims.columns = [
+        "Meal_Type",
+        "Total"
+    ]
+    fig8 = px.bar(
+        meal_claims,
+        x="Total",
+        y="Meal_Type",
+        orientation="h",
+        title="Most Claimed Meal Types"
+    )
+    charts["fig8"] = style_chart(fig8)
+
+    return charts
+
