@@ -1,0 +1,208 @@
+DROP TABLE IF EXISTS claims;
+DROP TABLE IF EXISTS food_listings;
+DROP TABLE IF EXISTS receivers;
+DROP TABLE IF EXISTS providers;
+
+
+CREATE TABLE providers(
+Provider_ID INTEGER PRIMARY KEY,
+Name TEXT,
+Type TEXT,
+Address TEXT,
+City TEXT,
+Contact TEXT
+);
+
+
+CREATE TABLE receivers(
+Receiver_ID INTEGER PRIMARY KEY,
+Name TEXT,
+Type TEXT,
+City TEXT,
+Contact TEXT
+);
+
+
+CREATE TABLE food_listings(
+Food_ID INTEGER PRIMARY KEY,
+Food_Name TEXT,
+Quantity INTEGER,
+Expiry_Date TEXT,
+Provider_ID INTEGER,
+Provider_Type TEXT,
+Location TEXT,
+Food_Type TEXT,
+Meal_Type TEXT,
+FOREIGN KEY (Provider_ID)
+REFERENCES providers(Provider_ID)
+);
+
+
+CREATE TABLE claims(
+Claim_ID INTEGER PRIMARY KEY,
+Food_ID INTEGER,
+Receiver_ID INTEGER,
+Status TEXT,
+Timestamp TEXT,
+FOREIGN KEY (Food_ID)
+REFERENCES food_listings(Food_ID),
+FOREIGN KEY (Receiver_ID)
+REFERENCES receivers(Receiver_ID)
+
+);
+
+
+
+SELECT COUNT(*)
+FROM providers;
+
+
+SELECT COUNT(*)
+FROM receivers;
+
+
+SELECT COUNT(*)
+FROM food_listings;
+
+
+SELECT COUNT(*)
+FROM claims;
+
+
+SELECT City, COUNT(*) AS Total_Providers
+FROM providers
+GROUP BY City
+ORDER BY Total_Providers DESC;
+
+
+SELECT City, COUNT(*) AS Total_Receivers
+FROM receivers
+GROUP BY City
+ORDER BY Total_Receivers DESC;
+
+
+SELECT Provider_Type, SUM(Quantity) AS Total_Food_Donated
+FROM food_listings
+GROUP BY Provider_Type
+ORDER BY Total_Food_Donated DESC;
+
+
+SELECT Name,Contact,Address
+FROM providers
+WHERE City='Port Carlburgh';
+
+
+SELECT Receiver_ID, COUNT(*) AS Total_Claims
+FROM claims
+GROUP BY Receiver_ID
+ORDER BY Total_Claims DESC;
+
+
+SELECT SUM(Quantity) AS Total_Food_Available
+FROM food_listings;
+
+
+SELECT Location,COUNT(*) AS Total_Listings
+FROM food_listings
+GROUP BY Location
+ORDER BY Total_Listings DESC;
+
+
+SELECT Food_Type,COUNT(*) AS Frequency
+FROM food_listings
+GROUP BY Food_Type
+ORDER BY Frequency DESC;
+
+
+SELECT Food_ID,COUNT(*) AS Total_Claims
+FROM claims
+GROUP BY Food_ID
+ORDER BY Total_Claims DESC;
+
+
+SELECT f.Provider_ID,COUNT(*) AS Successful_Claims
+FROM claims c
+JOIN food_listings f
+ON c.Food_ID=f.Food_ID
+WHERE c.Status='Completed'
+GROUP BY f.Provider_ID
+ORDER BY Successful_Claims DESC;
+
+
+SELECT Status,
+ROUND(COUNT(*)*100.0/(SELECT COUNT(*) FROM claims),2) AS Percentage
+FROM claims
+GROUP BY Status;
+
+
+SELECT Receiver_ID, COUNT(*) AS Total_Claims
+FROM claims
+GROUP BY Receiver_ID
+ORDER BY Total_Claims DESC;
+
+
+SELECT f.Meal_Type,COUNT(*) AS Total_Claims
+FROM claims c
+JOIN food_listings f
+ON c.Food_ID=f.Food_ID
+GROUP BY f.Meal_Type
+ORDER BY Total_Claims DESC;
+
+
+SELECT Provider_ID,SUM(Quantity) AS Total_Donated
+FROM food_listings
+GROUP BY Provider_ID
+ORDER BY Total_Donated DESC;
+
+
+SELECT Receiver_ID,COUNT(*) AS Total_Claims
+FROM claims
+GROUP BY Receiver_ID
+ORDER BY Total_Claims DESC
+LIMIT 5;
+
+
+SELECT * 
+FROM food_listings
+WHERE julianday(Expiry_Date)- julianday('now') <= 2
+AND
+julianday(Expiry_Date) >= julianday('now');
+
+
+SELECT *
+FROM claims
+WHERE Status='Pending';
+
+
+SELECT *
+FROM claims
+WHERE Status='Completed';
+
+
+SELECT *
+FROM claims
+WHERE Status='Cancelled';
+
+
+SELECT Food_Name,COUNT(*) AS Frequency
+FROM food_listings
+GROUP BY Food_Name
+ORDER BY Frequency DESC;
+
+
+SELECT Location,SUM(Quantity) AS Total_Food
+FROM food_listings
+GROUP BY Location
+ORDER BY Total_Food DESC
+LIMIT 5;
+
+
+SELECT f.Food_Type,COUNT(*) AS Total_Claims
+FROM claims c
+JOIN food_listings f
+ON c.Food_ID=f.Food_ID
+GROUP BY f.Food_Type
+ORDER BY Total_Claims DESC;
+
+
+SELECT * FROM providers;
